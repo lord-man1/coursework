@@ -7,6 +7,7 @@ import org.example.model.service.BookService;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,20 +68,23 @@ public class Model {
     public void saveFilterSettings() {
         try (FileOutputStream fos = new FileOutputStream(ModelData.PATH_TO_SETTINGS);
              ObjectOutputStream ous = new ObjectOutputStream(fos)) {
-              ous.writeObject(modelData);
+            ous.writeObject(modelData);
         } catch (IOException ignored) {
         }
     }
 
     public void loadSearchResults(Map<FilterSettings, String> inputData) {
+        modelData.setBookList(getBooksWithFilters(inputData));
+    }
+
+    public List<Book> getBooksWithFilters(Map<FilterSettings, String> inputData) {
         Pattern pattern = modelData.isSuggestAllSimilarOptions() ? Pattern.compile("") :
-                    Pattern.compile(" ");
+                Pattern.compile(" ");
         Matcher matcher;
-        List<Book> bookList = getAllBooks();
-        if (modelData.isSuggestAllSimilarOptions()) {
-            Pattern pattern = Pattern.compile("");
-        } else {
+        List<String> bookList = bookService.getCatalogueWithFilter(inputData.keySet());
+        for (String book : bookList) {
 
         }
+        return null;
     }
 }

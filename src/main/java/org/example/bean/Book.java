@@ -4,6 +4,7 @@ public class Book {
     private String author;
     private String description;
     private String title;
+    private String theme;
 
     public Book(String title) {
         this(title, null);
@@ -38,5 +39,9 @@ public class Book {
                 ", author='" + author + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    public String getTheme() {
+        return theme;
     }
 }

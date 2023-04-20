@@ -1,8 +1,10 @@
 package org.example.dao;
 
+import org.example.FilterSettings;
 import org.example.bean.Book;
 
 import java.util.List;
+import java.util.Map;
 
 public class BookDao {
     private final DataSource dataSource = DataSource.getInstance();

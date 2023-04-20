@@ -87,7 +87,7 @@ public class ConsoleView implements View {
             inputData.put(FilterSettings.DESCRIPTION_FILTER, consoleReader.readLine());
         }
         if (inputData.size() == 0) {
-            System.out.println("Нет ни одного параметра для поиска! (Настройки фильтрации)");
+            System.out.println("Нет ни одного параметра для поиска! (Загляните в настройки фильтрации)");
             return;
         }
         controller.onShowSearchResults(inputData);
