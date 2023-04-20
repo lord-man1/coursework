@@ -24,6 +24,7 @@ public class App {
 
     public static void run(ConsoleView consoleView) throws IOException {
         BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+        consoleView.fireEventStart();
         while (true) {
             consoleView.fireEventShowMenu();
             System.out.print("Введите пункт меню -> ");
@@ -35,34 +36,40 @@ public class App {
         String mainMenuPoint;
         mainMenuPoint = consoleReader.readLine();
         switch (mainMenuPoint) {
-            case "1":
+            case "1" -> {
                 System.out.println("\n");
                 consoleView.fireEventShowCatalogue();
-                break;
-            case "2":
+            }
+            case "2" -> {
                 System.out.println("\n");
                 consoleView.fireEventShowSearch();
-                break;
-            case "3":
-                handleSettingsMenuInput(consoleView, consoleReader);
-                break;
-            case "4":
+            }
+            case "3" -> handleSettingsMenuInput(consoleView, consoleReader);
+            case "4" -> {
+                consoleView.fireEventExit();
                 System.exit(0);
-            default:
-                System.out.println("\n\nТакого пункта нет! Повторите ввод.");
+            }
+            default -> System.out.println("\n\nТакого пункта нет! Повторите ввод.");
         }
         System.out.println("\n");
     }
 
     public static void handleSettingsMenuInput(ConsoleView consoleView, BufferedReader consoleReader) throws IOException {
         String settingsMenuPoint;
-        while (true) {
+        boolean flag = true;
+        while (flag) {
             System.out.println("\n");
             consoleView.fireEventShowFilterSettings();
+            System.out.print("Введите пункт меню настроек -> ");
             settingsMenuPoint = consoleReader.readLine();
             switch (settingsMenuPoint) {
-                case "1":
-
+                case "1" -> consoleView.fireEventEnableFilter(FIlterSettings.AUTHOR_FILTER);
+                case "2" -> consoleView.fireEventEnableFilter(FIlterSettings.DESCRIPTION_FILTER);
+                case "3" -> consoleView.fireEventEnableFilter(FIlterSettings.TITLE_FILTER);
+                case "4" -> consoleView.fireEventEnableFilter(FIlterSettings.THEME_FILTER);
+                case "5" -> consoleView.fireEventEnableFilter(FIlterSettings.SIMILAR_FILTER);
+                case "6" -> flag = false;
+                default -> System.out.println("\n\nТакого пункта нет! Повторите ввод.");
             }
         }
     }

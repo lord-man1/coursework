@@ -6,7 +6,9 @@ import java.io.Serializable;
 import java.util.List;
 
 public class ModelData implements Serializable {
-    private List<Book> bookList;
+
+    public static final String PATH_TO_SETTINGS = "/home/roman/Документы/saved/localSave.txt";
+    private transient List<Book> bookList;
     private boolean filteringByAuthor;
     private boolean filteringByDescription;
     private boolean filteringByTitle;
@@ -39,5 +41,25 @@ public class ModelData implements Serializable {
 
     public boolean isSuggestAllSimilarOptions() {
         return suggestAllSimilarOptions;
+    }
+
+    public void setFilteringByAuthor(boolean filteringByAuthor) {
+        this.filteringByAuthor = filteringByAuthor;
+    }
+
+    public void setFilteringByDescription(boolean filteringByDescription) {
+        this.filteringByDescription = filteringByDescription;
+    }
+
+    public void setFilteringByTitle(boolean filteringByTitle) {
+        this.filteringByTitle = filteringByTitle;
+    }
+
+    public void setFilteringBySubject(boolean filteringBySubject) {
+        this.filteringBySubject = filteringBySubject;
+    }
+
+    public void setSuggestAllSimilarOptions(boolean suggestAllSimilarOptions) {
+        this.suggestAllSimilarOptions = suggestAllSimilarOptions;
     }
 }

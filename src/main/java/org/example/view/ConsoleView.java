@@ -1,5 +1,6 @@
 package org.example.view;
 
+import org.example.FIlterSettings;
 import org.example.bean.Book;
 import org.example.controller.Controller;
 import org.example.model.ModelData;
@@ -33,29 +34,38 @@ public class ConsoleView implements View {
         String filterTitle = modelData.isFilteringByTitle() ? "3. Фильтрация по названию [*]" : "3. Фильтрация по названию [ ]";
         String filterTheme = modelData.isFilteringBySubject() ? "4. Фильтрация по предметной рубрике [*]" : "4. Фильтрация по предметной рубрике [ ]";
         String suggestVars = modelData.isSuggestAllSimilarOptions() ? "5. Предлагать ВСЕ схожие варианты [*]" : "5. Предлагать ВСЕ схожие варианты [ ]";
-        System.out.println(filterAuthor + "\n" + filterDescr + "\n" + filterTitle + "\n" + filterTheme + "\n" + suggestVars);
+        String exit = "6. Выход из меню настроек";
+        System.out.println(filterAuthor + "\n" + filterDescr + "\n" + filterTitle + "\n" + filterTheme + "\n" + suggestVars + "\n" + exit);
     }
 
-    @Override
     public void fireEventShowMenu() {
         controller.onShowMenu();
     }
 
-    @Override
     public void fireEventShowCatalogue() {
         controller.onShowCatalogue();
     }
 
-    @Override
     public void fireEventShowSearch() {
     }
 
-    @Override
     public void fireEventShowFilterSettings() {
         controller.onShowFilterSettings();
     }
 
     public void setController(Controller controller) {
         this.controller = controller;
+    }
+
+    public void fireEventEnableFilter(FIlterSettings authorFilter) {
+        controller.onEnableFilter(authorFilter);
+    }
+
+    public void fireEventExit() {
+        controller.onExit();
+    }
+
+    public void fireEventStart() {
+        controller.onStart();
     }
 }
