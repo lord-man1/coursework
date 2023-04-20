@@ -1,6 +1,6 @@
 package org.example;
 
-public enum FIlterSettings {
+public enum FilterSettings {
     AUTHOR_FILTER,
     DESCRIPTION_FILTER,
     TITLE_FILTER,

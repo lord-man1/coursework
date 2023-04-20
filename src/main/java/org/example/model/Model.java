@@ -1,11 +1,14 @@
 package org.example.model;
 
-import org.example.FIlterSettings;
+import org.example.FilterSettings;
 import org.example.bean.Book;
 import org.example.model.service.BookService;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Model {
     private ModelData modelData = new ModelData();
@@ -31,9 +34,9 @@ public class Model {
         return modelData;
     }
 
-    public void setFilterSettings(FIlterSettings authorFilter) {
+    public void setFilterSettings(FilterSettings filter) {
         boolean bool;
-        switch (authorFilter) {
+        switch (filter) {
             case AUTHOR_FILTER -> {
                 bool = enableOrDisableSettings(modelData.isFilteringByAuthor());
                 modelData.setFilteringByAuthor(bool);
@@ -66,6 +69,18 @@ public class Model {
              ObjectOutputStream ous = new ObjectOutputStream(fos)) {
               ous.writeObject(modelData);
         } catch (IOException ignored) {
+        }
+    }
+
+    public void loadSearchResults(Map<FilterSettings, String> inputData) {
+        Pattern pattern = modelData.isSuggestAllSimilarOptions() ? Pattern.compile("") :
+                    Pattern.compile(" ");
+        Matcher matcher;
+        List<Book> bookList = getAllBooks();
+        if (modelData.isSuggestAllSimilarOptions()) {
+            Pattern pattern = Pattern.compile("");
+        } else {
+
         }
     }
 }

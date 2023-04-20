@@ -1,16 +1,32 @@
 package org.example.controller;
 
-import org.example.FIlterSettings;
+import org.example.FilterSettings;
+import org.example.MenuPoints;
 import org.example.model.Model;
 import org.example.view.ConsoleView;
+
+import java.io.IOException;
+import java.util.Map;
 
 public class Controller {
     private Model model;
     private ConsoleView consoleView;
 
 
-    public void onShowMenu() {
-        consoleView.refreshMenu();
+    public void onShowMenu(MenuPoints point) throws IOException {
+        switch (point) {
+            case CATALOGUE -> consoleView.fireEventShowCatalogue();
+            case SEARCH -> consoleView.fireEventShowSearchMenu();
+            case FILTER_SETTINGS -> consoleView.fireEventShowFilterSettings();
+            case EXIT -> {
+                consoleView.fireEventExit();
+                System.exit(0);
+            }
+        }
+    }
+
+    public void onShowSearchMenu() throws IOException {
+        consoleView.refreshSearchMenu(model.getModelData());
     }
 
     public void onShowCatalogue() {
@@ -18,11 +34,19 @@ public class Controller {
         consoleView.refreshCatalogue(model.getModelData());
     }
 
-    public void onShowFilterSettings() {
-        consoleView.refreshFilterSettings(model.getModelData());
+    public void onShowFilterSettings(FilterSettings filterSetting) {
+        if (filterSetting == null) {
+            consoleView.refreshFilterSettings(model.getModelData());
+            return;
+        }
+        switch (filterSetting) {
+            case AUTHOR_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.AUTHOR_FILTER);
+            case DESCRIPTION_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.DESCRIPTION_FILTER);
+            case TITLE_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.TITLE_FILTER);
+            case THEME_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.THEME_FILTER);
+            case SIMILAR_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.SIMILAR_FILTER);
+        }
     }
-
-
 
     public void setModel(Model model) {
         this.model = model;
@@ -32,8 +56,8 @@ public class Controller {
         this.consoleView = consoleView;
     }
 
-    public void onEnableFilter(FIlterSettings authorFilter) {
-        model.setFilterSettings(authorFilter);
+    public void onEnableFilter(FilterSettings filter) {
+        model.setFilterSettings(filter);
     }
 
     public void onExit() {
@@ -42,5 +66,10 @@ public class Controller {
 
     public void onStart() {
         model.loadFilterSettings();
+    }
+
+    public void onShowSearchResults(Map<FilterSettings, String> inputData) {
+        model.loadSearchResults(inputData);
+        consoleView.refreshSearchResults(model.getModelData());
     }
 }
