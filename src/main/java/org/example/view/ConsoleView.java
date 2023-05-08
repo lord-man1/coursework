@@ -136,4 +136,11 @@ public class ConsoleView implements View {
     public void fireEventStart() {
         controller.onStart();
     }
+
+    public void refreshSearchResults(ModelData modelData) {
+        System.out.println("Результаты поиска: ");
+        for (String book : modelData.getSearchResults()) {
+            System.out.println(book);
+        }
+    }
 }

@@ -5,15 +5,13 @@ import org.example.bean.Book;
 import org.example.model.service.BookService;
 
 import java.io.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
 
 public class Model {
     private ModelData modelData = new ModelData();
     private BookService bookService = new BookService();
+
+    private static final int SEARCH_DEPTH = 7;
 
     public void loadCatalogue() {
         modelData.setBookList(getAllBooks());
@@ -74,17 +72,133 @@ public class Model {
     }
 
     public void loadSearchResults(Map<FilterSettings, String> inputData) {
-        modelData.setBookList(getBooksWithFilters(inputData));
+        modelData.setSearchResults(getBooksWithFilters(inputData));
     }
 
-    public List<Book> getBooksWithFilters(Map<FilterSettings, String> inputData) {
-        Pattern pattern = modelData.isSuggestAllSimilarOptions() ? Pattern.compile("") :
-                Pattern.compile(" ");
-        Matcher matcher;
+    public List<String> getBooksWithFilters(Map<FilterSettings, String> inputData) {
+        String pattern = String.join(" ", inputData.values());
         List<String> bookList = bookService.getCatalogueWithFilter(inputData.keySet());
-        for (String book : bookList) {
-
+        if (modelData.isSuggestAllSimilarOptions()) {
+            return new ArrayList<>(getBooksWithSoftFilters(bookList, pattern));
+        } else {
+            return new ArrayList<>(getBooksWithStrongFilters(bookList, pattern));
         }
-        return null;
+    }
+
+    private Set<String> getBooksWithStrongFilters(List<String> bookList, String pattern) {
+        Set<String> result = new HashSet<>();
+        for (String book : bookList) {
+            if (book.contains(pattern)) result.add(book);
+        }
+        return result;
+    }
+
+    private Set<String> getBooksWithSoftFilters(List<String> bookList, String pattern) {
+        String[] splittedPattern = pattern.split(" ");
+
+        Map<String, Map<Integer, Integer>> booksPriorities = new HashMap<>();
+
+        for (String book : bookList) {
+            Map<Integer, Integer> priorityMap = new HashMap<>();
+            for (String patternPart : splittedPattern) {
+                String patternPartFromEndCopy, patternPartFromStartCopy;
+                int patternPartLength = patternPart.length();
+
+                int i = 0;
+                while (true) {
+                    patternPartFromEndCopy = patternPart.toLowerCase().substring(0, patternPartLength - i);
+                    patternPartFromStartCopy = patternPart.toLowerCase().substring(i);
+                    if (patternPartFromEndCopy.equals("") || patternPartFromStartCopy.equals("")) break;
+
+                    int countOfIntersects = !patternPartFromStartCopy.equals(patternPartFromEndCopy)
+                            ? KMP(book.toLowerCase(), patternPartFromStartCopy) + KMP(book.toLowerCase(), patternPartFromEndCopy)
+                            : KMP(book.toLowerCase(), patternPartFromStartCopy);
+
+                    if (countOfIntersects != 0) {
+                        if (priorityMap.get(i) == null) priorityMap.put(i, 1);
+                        else priorityMap.put(i, priorityMap.get(i) + countOfIntersects);
+                    } else {
+                        if (priorityMap.get(i) == null) priorityMap.put(i, 0);
+                        else priorityMap.put(i, priorityMap.get(i));
+                    }
+                    i++;
+                }
+            }
+
+            booksPriorities.put(book, priorityMap);
+        }
+
+        return getSortedByWeightBooks(booksPriorities);
+    }
+
+
+    private Set<String> getSortedByWeightBooks(Map<String, Map<Integer, Integer>> booksPriorities) {
+        List<Map<Integer, Integer>> list = new ArrayList<>(booksPriorities.values());
+        int searchDepth = list.get(0).keySet().size() / SEARCH_DEPTH;
+        for (int i = 0; i < searchDepth; i++) {
+            int finalI = i;
+            list.removeIf(mapDepth -> mapDepth.get(finalI).equals(0));
+        }
+        Comparator<Map<Integer, Integer>> comparator = (o1, o2) -> {
+            for (int i = 0; i < o1.keySet().size(); i++) {
+                if (!o1.get(i).equals(o2.get(i))) {
+                    return o2.get(i).compareTo(o1.get(i));
+                }
+            }
+            return 0;
+        };
+        list.sort(comparator);
+
+        Map<String, Map<Integer, Integer>> result = new LinkedHashMap<>();
+        for (Map<Integer, Integer> sortedMap : list) {
+            for (Map.Entry<String, Map<Integer, Integer>> mapPair : booksPriorities.entrySet()) {
+                if (mapPair.getValue().equals(sortedMap)) {
+                    result.put(mapPair.getKey(), mapPair.getValue());
+                }
+            }
+        }
+
+        return result.keySet();
+    }
+
+    public static int KMP(String text, String pattern) {
+        int countOfOccurs = 0;
+        // базовый случай 1: шаблон нулевой или пустой
+        if (pattern == null || pattern.length() == 0) {
+            return -1;
+        }
+
+        // базовый случай 2: текст равен NULL или длина текста меньше длины шаблона
+        if (text == null || pattern.length() > text.length()) {
+            return -1;
+        }
+
+        char[] chars = pattern.toCharArray();
+
+        // next[i] сохраняет индекс следующего лучшего частичного совпадения
+        int[] next = new int[pattern.length() + 1];
+        for (int i = 1; i < pattern.length(); i++) {
+            int j = next[i];
+
+            while (j > 0 && chars[j] != chars[i]) {
+                j = next[j];
+            }
+
+            if (j > 0 || chars[j] == chars[i]) {
+                next[i + 1] = j + 1;
+            }
+        }
+
+        for (int i = 0, j = 0; i < text.length(); i++) {
+            if (j < pattern.length() && text.charAt(i) == pattern.charAt(j)) {
+                if (++j == pattern.length()) {
+                    countOfOccurs++;
+                }
+            } else if (j > 0) {
+                j = next[j];
+                i--;    // так как `i` будет увеличен на следующей итерации
+            }
+        }
+        return countOfOccurs;
     }
 }

@@ -7,8 +7,9 @@ import java.util.List;
 
 public class ModelData implements Serializable {
 
-    public static final String PATH_TO_SETTINGS = "/home/roman/Документы/saved/localSave.txt";
+    public static final String PATH_TO_SETTINGS = "C:\\JavaProjects\\Coursework\\localSave.txt";
     private transient List<Book> bookList;
+    private transient List<String> searchResults;
     private boolean filteringByAuthor;
     private boolean filteringByDescription;
     private boolean filteringByTitle;
@@ -19,8 +20,16 @@ public class ModelData implements Serializable {
         return bookList;
     }
 
+    public List<String> getSearchResults() {
+        return searchResults;
+    }
+
     public void setBookList(List<Book> bookList) {
         this.bookList = bookList;
+    }
+
+    public void setSearchResults(List<String> searchResults) {
+        this.searchResults = searchResults;
     }
 
     public boolean isFilteringByAuthor() {
