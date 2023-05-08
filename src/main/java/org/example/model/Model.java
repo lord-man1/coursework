@@ -88,7 +88,9 @@ public class Model {
     private Set<String> getBooksWithStrongFilters(List<String> bookList, String pattern) {
         Set<String> result = new HashSet<>();
         for (String book : bookList) {
-            if (book.contains(pattern)) result.add(book);
+            for (String subPattern : pattern.split(" ")) {
+                if (book.toLowerCase().contains(subPattern.toLowerCase().strip())) result.add(book);
+            }
         }
         return result;
     }
