@@ -79,23 +79,31 @@ public class Model {
         String pattern = String.join(" ", inputData.values());
         List<String> bookList = bookService.getCatalogueWithFilter(inputData.keySet());
         if (modelData.isSuggestAllSimilarOptions()) {
-            return new ArrayList<>(getBooksWithSoftFilters(bookList, pattern));
+            return getBooksWithSoftFilters(bookList, pattern);
         } else {
-            return new ArrayList<>(getBooksWithStrongFilters(bookList, pattern));
+            return List.of(getBookWithStrongFilters(bookList, pattern));
         }
     }
 
-    private Set<String> getBooksWithStrongFilters(List<String> bookList, String pattern) {
-        Set<String> result = new HashSet<>();
+    private String getBookWithStrongFilters(List<String> bookList, String pattern) {
+        String result = "";
+        int maxScore = 0;
         for (String book : bookList) {
+            int score = 0;
             for (String subPattern : pattern.split(" ")) {
-                if (book.toLowerCase().contains(subPattern.toLowerCase().strip())) result.add(book);
+                if (book.toLowerCase().contains(subPattern.toLowerCase().strip())) {
+                    score++;
+                }
+            }
+            if (score > maxScore) {
+                maxScore = score;
+                result = book;
             }
         }
         return result;
     }
 
-    private Set<String> getBooksWithSoftFilters(List<String> bookList, String pattern) {
+    private ArrayList<String> getBooksWithSoftFilters(List<String> bookList, String pattern) {
         String[] splittedPattern = pattern.split(" ");
 
         Map<String, Map<Integer, Integer>> booksPriorities = new HashMap<>();
@@ -116,13 +124,8 @@ public class Model {
                             ? KMP(book.toLowerCase(), patternPartFromStartCopy) + KMP(book.toLowerCase(), patternPartFromEndCopy)
                             : KMP(book.toLowerCase(), patternPartFromStartCopy);
 
-                    if (countOfIntersects != 0) {
-                        if (priorityMap.get(i) == null) priorityMap.put(i, 1);
-                        else priorityMap.put(i, priorityMap.get(i) + countOfIntersects);
-                    } else {
-                        if (priorityMap.get(i) == null) priorityMap.put(i, 0);
-                        else priorityMap.put(i, priorityMap.get(i));
-                    }
+                    priorityMap.put(i, priorityMap.getOrDefault(i, 0) + countOfIntersects);
+
                     i++;
                 }
             }
@@ -134,7 +137,7 @@ public class Model {
     }
 
 
-    private Set<String> getSortedByWeightBooks(Map<String, Map<Integer, Integer>> booksPriorities) {
+    private ArrayList<String> getSortedByWeightBooks(Map<String, Map<Integer, Integer>> booksPriorities) {
         List<Map<Integer, Integer>> list = new ArrayList<>(booksPriorities.values());
         int searchDepth = list.get(0).keySet().size() / SEARCH_DEPTH;
         for (int i = 0; i < searchDepth; i++) {
@@ -160,7 +163,7 @@ public class Model {
             }
         }
 
-        return result.keySet();
+        return new ArrayList<>(result.keySet());
     }
 
     public static int KMP(String text, String pattern) {
