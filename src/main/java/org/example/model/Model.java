@@ -11,8 +11,6 @@ public class Model {
     private ModelData modelData = new ModelData();
     private BookService bookService = new BookService();
 
-    private static final int SEARCH_DEPTH = 7;
-
     public void loadCatalogue() {
         modelData.setBookList(getAllBooks());
     }
@@ -76,6 +74,7 @@ public class Model {
     }
 
     public List<String> getBooksWithFilters(Map<FilterSettings, String> inputData) {
+        if (inputData.containsValue("")) return new ArrayList<>();
         String pattern = String.join(" ", inputData.values());
         List<String> bookList = bookService.getCatalogueWithFilter(inputData.keySet());
         if (modelData.isSuggestAllSimilarOptions()) {
@@ -115,10 +114,12 @@ public class Model {
                 int patternPartLength = patternPart.length();
 
                 int i = 0;
+                int searchDepth = patternPart.length() / 2;
                 while (true) {
                     patternPartFromEndCopy = patternPart.toLowerCase().substring(0, patternPartLength - i);
                     patternPartFromStartCopy = patternPart.toLowerCase().substring(i);
-                    if (patternPartFromEndCopy.equals("") || patternPartFromStartCopy.equals("")) break;
+                    if (patternPartFromEndCopy.equals("") || patternPartFromStartCopy.equals("")
+                            || i == searchDepth) break;
 
                     int countOfIntersects = !patternPartFromStartCopy.equals(patternPartFromEndCopy)
                             ? KMP(book.toLowerCase(), patternPartFromStartCopy) + KMP(book.toLowerCase(), patternPartFromEndCopy)
@@ -139,11 +140,9 @@ public class Model {
 
     private ArrayList<String> getSortedByWeightBooks(Map<String, Map<Integer, Integer>> booksPriorities) {
         List<Map<Integer, Integer>> list = new ArrayList<>(booksPriorities.values());
-        int searchDepth = list.get(0).keySet().size() / SEARCH_DEPTH;
-        for (int i = 0; i < searchDepth; i++) {
-            int finalI = i;
-            list.removeIf(mapDepth -> mapDepth.get(finalI).equals(0));
-        }
+        checkValidity(list);
+        if (list.size() == 0) return new ArrayList<>();
+
         Comparator<Map<Integer, Integer>> comparator = (o1, o2) -> {
             for (int i = 0; i < o1.keySet().size(); i++) {
                 if (!o1.get(i).equals(o2.get(i))) {
@@ -164,6 +163,10 @@ public class Model {
         }
 
         return new ArrayList<>(result.keySet());
+    }
+
+    private void checkValidity(List<Map<Integer, Integer>> list) {
+        list.removeIf(map -> new HashSet<>(map.values()).size() == 1);
     }
 
     public static int KMP(String text, String pattern) {

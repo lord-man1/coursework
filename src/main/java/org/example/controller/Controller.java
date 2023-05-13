@@ -39,13 +39,7 @@ public class Controller {
             consoleView.refreshFilterSettings(model.getModelData());
             return;
         }
-        switch (filterSetting) {
-            case AUTHOR_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.AUTHOR_FILTER);
-            case DESCRIPTION_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.DESCRIPTION_FILTER);
-            case TITLE_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.TITLE_FILTER);
-            case THEME_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.THEME_FILTER);
-            case SIMILAR_FILTER -> consoleView.fireEventEnableFilter(FilterSettings.SIMILAR_FILTER);
-        }
+        onEnableFilter(filterSetting);
     }
 
     public void setModel(Model model) {

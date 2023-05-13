@@ -125,10 +125,6 @@ public class ConsoleView implements View {
         this.controller = controller;
     }
 
-    public void fireEventEnableFilter(FilterSettings filter) {
-        controller.onEnableFilter(filter);
-    }
-
     public void fireEventExit() {
         controller.onExit();
     }
