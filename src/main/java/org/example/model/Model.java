@@ -78,7 +78,10 @@ public class Model {
         String pattern = String.join(" ", inputData.values());
         List<String> bookList = bookService.getCatalogueWithFilter(inputData.keySet());
         if (modelData.isSuggestAllSimilarOptions()) {
-            return getBooksWithSoftFilters(bookList, pattern);
+            long time = System.currentTimeMillis();
+            List<String> result = getBooksWithSoftFilters(bookList, pattern);
+            System.out.println(System.currentTimeMillis() - time);
+            return result;
         } else {
             return List.of(getBookWithStrongFilters(bookList, pattern));
         }
@@ -115,7 +118,7 @@ public class Model {
 
                 int i = 0;
                 int searchDepth = patternPart.length() / 2;
-                while (true) {
+                do {
                     patternPartFromEndCopy = patternPart.toLowerCase().substring(0, patternPartLength - i);
                     patternPartFromStartCopy = patternPart.toLowerCase().substring(i);
                     if (patternPartFromEndCopy.equals("") || patternPartFromStartCopy.equals("")
@@ -128,7 +131,7 @@ public class Model {
                     priorityMap.put(i, priorityMap.getOrDefault(i, 0) + countOfIntersects);
 
                     i++;
-                }
+                } while (true);
             }
 
             booksPriorities.put(book, priorityMap);

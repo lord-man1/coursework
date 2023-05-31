@@ -13,6 +13,7 @@ public class Controller {
     private ConsoleView consoleView;
 
 
+
     public void onShowMenu(MenuPoints point) throws IOException {
         switch (point) {
             case CATALOGUE -> consoleView.fireEventShowCatalogue();
